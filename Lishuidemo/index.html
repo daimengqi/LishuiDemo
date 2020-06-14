@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>丽水西城校区三维系统</title>
+    <link href="./Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/pretty.css" rel="stylesheet">
+    <link href="./css/font-awesome.min.css" rel="stylesheet">
+    <link href="./css/style.css" rel="stylesheet">
+    <!--<link type="text/css" href="jquery-easyui-1.7.0/themes/default/easyui.css">&lt;!&ndash;默认主题样式表的引入&ndash;&gt;-->
+    <!--<link type="text/css" href="jquery-easyui-1.7.0/themes/icon.css">&lt;!&ndash;图标样式表的引入&ndash;&gt;-->
+    <link rel="stylesheet" href="./css/reset-jy.css">
+    <!--<link rel="stylesheet" type="text/css" href="css/default-jy.css">-->
+    <link rel="stylesheet" href="./css/style-jy.css">
+    <!--<script type="text/javascript" src="jquery-easyui-1.7.0/jquery.min.js"></script>&lt;!&ndash;底层jquery的引入&ndash;&gt;-->
+    <!--<script type="text/javascript" src="jquery-easyui-1.7.0/jquery.easyui.min.js"></script>&lt;!&ndash;easyui的js的引入&ndash;&gt;-->
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/jquery.mobile.custom.min-jy.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap-select.min.js"></script>
+    <script src="./js/config.js"></script>
+    <script src="./js/Convert.js"></script>
+    <script src="./js/slider.js"></script>
+    <!--<script src="./js/spectrum.js"></script>-->
+    <script src="./js/tooltip.js"></script>
+    <script src="./js/supermap/SuperMap.Include.js"></script>
+    <script type="text/javascript" src="./js/require.min.js" data-main="js/main"></script>
+
+    <style>
+        #center-div {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            border-style: none solid none solid;
+            border-width: 1px;
+            border-color: #D1D1D1;
+        }
+        #nav {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background-color: #fff;
+            border-width: 0 0 1px;
+            border-style: solid;
+            border-color: #e7e7e7;
+            border-radius: 0;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, .5);
+            top: -40px;
+            z-index: 101;
+        }
+        label>input,
+        label>span {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        #split_left {
+            position: absolute;
+            background-color: white;
+            right: 50%;
+            bottom: 50%;
+            height: 2px;
+            width: 50%;
+            -webkit-transform: translate(0, -50%);
+        }
+        #split_right {
+            position: absolute;
+            background-color: white;
+            left: 50%;
+            bottom: 50%;
+            height: 2px;
+            width: 50%;
+            -webkit-transform: translate(0, -50%);
+        }
+        #play {
+            content: url(./images/play.png);
+            height: 30px;
+            padding: 5px;
+            vertical-align: middle;
+        }
+        #pause {
+            content: url(./images/pause.png);
+            height: 30px;
+            padding: 5px;
+            vertical-align: middle;
+        }
+        #stop {
+            content: url(./images/stop.png);
+            height: 30px;
+            padding: 5px;
+            vertical-align: middle;
+        }
+        .bootstrap-select {
+            width: 150px;
+        }
+
+        input[type=text]{
+            TEXT-ALIGN: center;
+            z-index: 3;
+            height: 18px;
+            background: none;
+            border: none;
+            padding: 5px 0;
+            -webkit-transition: 0.3s;
+            transition: 0.3s;
+            border-bottom: 2px solid #b8b2b2;
+            color: aliceblue;
+        }
+
+        .form-group::before {
+            content: attr(data-foo);
+            color: black;
+        }
+        #setingBar{
+            width:150px;
+            height:110px;
+            margin: 5px;
+            padding: 2px 5px;
+            background: rgba(42, 42, 42, 0.4);
+            padding: 8px;
+            border-radius: 4px;
+            color:cornflowerblue
+        }
+        /*可视域分析*/
+        input[type=range] {
+            width: 180px;
+        }
+
+        input[type=text] {
+            width: 50px;
+        }
+
+        .square {
+            margin-left: 5px;
+            width: 120px;
+            height: 30px;
+            max-width: 150px;
+            display: inline-block;
+        }
+
+        label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="loading">
+<!-- <body class="claro noselect " unselectable="on"> -->
+<!--<div id='tool-menu' class='tool-menu'>-->
+    <!--<a data-toggle='dropdown' id='layerMangerBtn' title='图层管理' class='tool-menu-btn tool-menu-btn-inverse'>-->
+        <!--<span class='smicon-layerlist tool-menu-btn-icon'></span>-->
+        <!--<div class="dropDown-container treeview-dropDown-container" id="treeContainer">-->
+            <!--<div id='layerTree'></div>-->
+        <!--</div>-->
+    <!--</a>-->
+    <!--<a class='tool-menu-btn tool-menu-btn-inverse' style='padding:10px 0px;'><span style='border-left : 1px solid #dddddd;'></span></a>-->
+    <!--<div id='tool-menu-btn-group' class='tool-menu-btn-group'>-->
+        <!--<a data-toggle='dropdown' id='colorBtn'  title='选中颜色' class='tool-menu-btn tool-menu-btn-inverse'>-->
+            <!--<span class='fui-list-small-thumbnails tool-menu-btn-icon'></span>-->
+            <!--<div class="dropDown-container">-->
+                <!--<div style='min-width : 100px;border-radius : 4px;text-align : left;padding : 10px;'>-->
+                    <!--<label style="font-size:8px">选中颜色： </label><input  class="colorPicker" size="8" data-bind="value: material,valueUpdate: 'input'" id="colorPicker">-->
+                <!--</div>-->
+                <!--<div style="text-align : left;padding : 10px;">-->
+                    <!--<label>过滤透明度：</label><input type="number" min="0" max="1" step="0.1" value="0" id="select-filter-alpha"/>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</a>-->
+    <!--</div>-->
+<!--</div>-->
+
+<!--<section class="cd-horizontal-timeline">-->
+<!--<div class="timeline">-->
+<!--<div class="events-wrapper">-->
+	<!--<div class="events">-->
+		<!--<ol>-->
+			<!--<li onclick=display_alert()><a href="#0" data-date="16/01/2014" class="selected">0:00</a></li>-->
+			<!--<li onclick=showFirst("污水@xicheng")><a href="#0" data-date="28/02/2014">0:30</a></li>-->
+			<!--<li onclick=display_alert()><a href="#0" data-date="28/03/2014">1:00</a></li>-->
+			<!--<li onclick=display_alert()><a href="#0" data-date="28/04/2014">1:30</a></li>-->
+			<!--<li onclick=display_alert()><a href="#0" data-date="28/05/2014">2:00</a></li>-->
+			<!--<li onclick=display_alert()><a href="#0" data-date="28/06/2014">2:30</a></li>-->
+			<!--<li onclick=display_alert()><a href="#0" data-date="28/07/2014">3:00</a></li>-->
+		<!--</ol>-->
+
+		<!--<span class="filling-line" aria-hidden="true"></span>-->
+			<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+<!--</section>-->
+	
+	<div id="center-div">
+        <!-- 工具条 -->
+        <div id="nav" role="navigation" class="navbar navbar-default" style="padding: 0 15px; margin-bottom: 0px">
+            <ul id="toolbar" class="nav navbar-nav" role="tool">
+            <!--</ul>-->
+            <!--<ul id="rightmenu" class="nav navbar-nav navbar-right">-->
+                <li class="dropdown">
+                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="font-size:14px"><span class="tool-icon tool-icon-tools"></span>图层卷帘 <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <label><input type="checkbox" id="use-roller"/><span style="vertical-align: middle;">使用卷帘</span></label>
+                        </li>
+                        <li>
+                            <label><input type="radio" name="roller-category" value="lr-roller" style="vertical-align: middle;" /><span style="vertical-align: middle;" >左右卷帘</span></label>
+                        </li>
+                        <li style="text-indent: 0.7rem;" id="lr-roller-mode">
+                            <label><input type="radio" name="roller-mode" value="left-roller"/><span style="vertical-align: middle;" >屏蔽左侧</span></label>
+                            <label><input type="radio" name="roller-mode" value="right-roller"/><span style="vertical-align: middle;">屏蔽右侧</span></label>
+                        </li>
+                        <li>
+                            <label><input type="radio" name="roller-category" value="tb-roller" style="vertical-align: middle;"/><span style="vertical-align: middle;">上下卷帘</span></label>
+                        </li>
+                        <li style="text-indent: 0.7rem; display: none;" id="tb-roller-mode">
+                            <label><input type="radio" name="roller-mode" value="top-roller" style="vertical-align: middle;"/><span style="vertical-align: middle;">屏蔽上侧</span></label>
+                            <label><input type="radio" name="roller-mode" value="bottom-roller" style="vertical-align: middle;"/><span style="vertical-align: middle;">屏蔽下侧</span></label>
+                        </li>
+                        <li>
+                            <label style="vertical-align: middle; text-align:center">选择参与卷帘的图层</label>
+                        </li>
+                        <li id="layer-list" style="margin: 0.5rem 0;">
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="font-size:14px"><span class="tool-icon tool-icon-tools"></span>地面透明度 <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <input type="range" style="width:100%" min="0" max="1" step="0.02" height=10px title="调整地上图层透明度" data-bind="value: overGroundAlpha, valueUpdate: 'input'">
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="font-size:14px"><span class="tool-icon tool-icon-tools"></span>测量工具 <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <button type="button" id="distance" style="width:100%; color:#555; background-color: #fff; border: 0px; padding: 5px 15px 5px" >距离量测</button>
+                        </li>
+                        <li>
+                            <button type="button" id="area"  style="width:100%; color:#555; background-color: #fff; border: 0px; padding: 5px 15px 5px">面积量测</button>
+                        </li>
+                        <li>
+                            <button type="button" id="height"  style="width:100%; color:#555; background-color: #fff; border: 0px; padding: 5px 15px 5px">高度量测</button>
+                        </li>
+                        <li>
+                            <button type="button" id="clear"  style="width:100%; color:#555; background-color: #fff; border: 0px; padding: 5px 15px 5px">去除</button>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="font-size:14px"><span class="tool-icon tool-icon-tools"></span>飞行浏览 <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <span type="button" id="play"  class="button white" title="开始"></span>
+                            <span type="button" id="pause" class="button white" title="暂停"></span>
+                            <span type="button" id="stop" class="button white" title="停止"></span>
+                        </li>
+                        <li>
+                            <select id="stopList" class="form-control" style="width:100%;display: none">
+                            </select>
+                        </li>
+                        <li>
+                            <label style="vertical-align: middle;"class="button blue" ><input type="checkbox" id="show-line" checked> 显示飞行路线</label>
+                            <label style="vertical-align: middle;"class="button blue"  ><input type="checkbox" id="show-stop" checked> 显示飞行站点</label>
+                        </li>
+                    </ul>
+                </li>
+
+                <select id="viewportType" style="height:40px; width:100px; vertical-align:middle; color:#555; background-color: #fff; line-height: 30px; border: 0px; padding: 8px 15px 10px; margin-bottom: 0px;">
+                    <option value="NONE" selected>单屏</option>
+                    <option value="HORIZONTAL">双屏</option>
+                </select>
+
+                <button type="button" id="excavation" style="vertical-align:middle; color:#555; background-color: #fff; line-height: 30px; border: 0px; padding: 5px 15px 5px">管线开挖</button>
+                <button type="button" id="custom" style="vertical-align:middle; color:#555; background-color: #fff; line-height: 30px; border: 0px; padding: 5px 15px 5px">场景出图</button>
+
+                <!--<input type="button" id="custom" value="场景出图" style="display:block; vertical-align:middle; color:#555; background-color: #fff; line-height: 30px; border: 0px; padding: 5px 15px 5px">-->
+                <button type="button" id="waterFlood" style="vertical-align:middle; color:#555; background-color: #fff; line-height: 30px; border: 0px; padding: 5px 15px 5px" onclick="window.open('yanmofenxi.html')">淹没分析</button>
+                <button type="button" id="sightAnalyze" style="vertical-align:middle; color:#555; background-color: #fff; line-height: 30px; border: 0px; padding: 5px 15px 5px" onclick="window.open('viewshed3D.html')">可视域分析</button>
+                <button type="button" id="2D3D" style="vertical-align:middle; color:#555; background-color: #fff; line-height: 30px; border: 0px; padding: 5px 15px 5px" onclick="window.open('2D3DExplorer.html')">二三维一体化</button>
+                <!--<button type="button" id="gaodeMap" style="vertical-align:middle; color:#555; background-color: #fff; line-height: 30px; border: 0px; padding: 5px 15px 5px" onclick="window.open('gaodeMap.html')">高德地图</button>-->
+                <!--<button type="button" id="yingYan" style="vertical-align:middle; color:#555; background-color: #fff; line-height: 30px; border: 0px; padding: 5px 15px 5px" onclick="window.open('HawKeyeMap.html')">鹰眼图</button>-->
+
+
+
+                <!--<button type="button" id="qingchu" style="float:right;" class="button black">清除</button>-->
+                <!--<button type="button" id="clear" style="vertical-align:middle; color:#555; background-color: #fff; line-height: 30px; border: 0px; padding: 5px 15px 5px">清除</button>-->
+                <!--<button type="button" id="clear2" style="float:right;" class="button black">取消挖掘</button>-->
+                <div id="pannel" class="param-container tool-bar" style="display:none; padding: 10px; top: 41px;width: 200px;">
+                    <div id="ground">
+                        <p>地面：</p>
+                        <div>
+                            <label id="g_one">
+                                <input type="checkbox" id="ground_one" data-value="0" checked/>
+                                <span>一</span>
+                            </label>
+                            <label id="g_two">
+                                <input type="checkbox" id="ground_two" data-value="1" checked/>
+                                <span>二</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="yushui" style="margin-top: 1rem;">
+                        <p>雨水管线：</p>
+                        <div>
+                            <label id="ys_one">
+                                <input type="checkbox" id="yushui_one" data-value="0" checked/>
+                                <span>一</span>
+                            </label>
+                            <label id="ys_two">
+                                <input type="checkbox" id="yushui_two" data-value="1" checked/>
+                                <span>二</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="wushui" style="margin-top: 1rem;">
+                        <p>污水管线：</p>
+                        <div>
+                            <label id="ws_one">
+                                <input type="checkbox" id="wushui_one" data-value="0" checked/>
+                                <span>一</span>
+                            </label>
+                            <label id="ws_two">
+                                <input type="checkbox" id="wushui_two" data-value="1" checked/>
+                                <span>二</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </ul>
+        </div>
+
+
+        <!--<div id="panel2" class="param-container tool-bar">-->
+            <!--<div class="element" id="colorTable" title="设置颜色表">-->
+                <!--<select class="selectpicker">-->
+                    <!--<option value="1" data-content="<span class='label band1'>&nbsp</span>">&nbsp</option>-->
+                    <!--<option value="2" data-content="<span class='label band2'>&nbsp</span>">&nbsp</option>-->
+                    <!--<option value="3" data-content="<span class='label band3'>&nbsp</span>">&nbsp</option>-->
+                    <!--<option value="4" data-content="<span class='label band4'>&nbsp</span>">&nbsp</option>-->
+                    <!--<option value="5" data-content="<span class='label band5'>&nbsp</span>">&nbsp</option>-->
+                <!--</select>-->
+            <!--</div>-->
+            <!--<div id="setingBar">-->
+                <!--<div class="form-group">-->
+                    <!--<input id="maxHeight" value="162" required="required" class="form-control"/>-->
+                    <!--<label class="form-label">最大高度  (米) :    </label>-->
+                <!--</div>-->
+                <!--<div class="form-group">-->
+                    <!--<input id="minHeight" value="37" required="required" class="form-control"/>-->
+                    <!--<label  class="form-label">最小高度  (米) :</label>-->
+                <!--</div>-->
+                <!--<div class="form-group">-->
+                    <!--<input id="speed" value="1" required="required" class="form-control"/>-->
+                    <!--<label class="form-label">淹没速度(米/秒):</label>-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div style="margin-left: 40px;">-->
+                <!--<button type="button" id="begin" class="button black">开始</button>-->
+                <!--<button type="button" id="remove" class="button black">清除</button>-->
+            <!--</div>-->
+        <!--</div>-->
+        <div id="cesiumContainer">
+            <div id="vertical-slider" style="display: none"></div> <!--卷帘垂直分割线-->
+            <div id="horizontal-slider" style="display: none"></div>  <!--卷帘水平分割线-->
+        </div>
+        <div id="split_left" style="display: none;"></div>
+        <div id="split_right" style="display: none;"></div>
+        <div id='loadingbar' class="spinner">
+            <div class="spinner-container container1">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container2">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+            <div class="spinner-container container3">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+            </div>
+        </div>
+
+        <blockquote id="bubble" class="bubble">
+            <img id="myimg" src="./images/home_banner.jpg" width="50%" height="auto">
+            <h2 id="title"></h2>
+            <p id="des" class="word"></p>
+            <audio controls="controls">
+                <source src="./media/song.mp3" type="audio/mpeg" />
+                Your browser does not support the audio tag.
+            </audio>
+        </blockquote>
+    </div>
+
+	
+<!--<script>-->
+
+<!--function showFirst(firstID){-->
+   <!--debugger;-->
+   <!--$("input[type='checkbox'][id='"+firstID+"']").attr("checked",false);-->
+<!--}-->
+
+<!--</script>-->
+<script>
+    //联网状态下查看飞行范例
+    var flyManager;
+    var currentHeight = 37;
+    var maxValue = 0;
+    var minValue = 0;
+    var int = null;
+    function onload(Cesium) {
+        var infoboxContainer = document.getElementById("bubble");
+        var flybar = document.getElementById('toolbar');
+
+        //添加地形服务
+        // var viewer = new Cesium.Viewer('cesiumContainer',{
+        //     //创建地形服务提供者的实例，url为SuperMap iServer发布的TIN地形服务
+        //     terrainProvider: new Cesium.CesiumTerrainProvider({
+        //         //url:  "https://www.supermapol.com/realspace/services/3D-stk_terrain/rest/realspace/datas/info/data/path",
+        //         url:URL_CONFIG.SiChuan_TERRAIN,
+        //         isSct: true,//地形服务源自SuperMap iServer发布时需设置isSct为true
+        //        // requestVertexNormals : true
+        //     }),
+        //     sceneModePicker: true,
+        //     navigation: false,
+        //     geocoder : true,
+        // });
+        //viewer.geocoder.viewModel.geoKey = 'fvV2osxwuZWlY0wJb8FEb2i5';
+
+       //初始化viewer控件
+        var viewer = new Cesium.Viewer('cesiumContainer',{
+            geocoder:true,
+            homeButton:true,
+            infoBox: true,
+            sceneModePicker:true,
+            baseLayerPicker:false,
+            navigation:false,
+            animation:false,
+            timeline:false,
+            fullscreenButton:true,
+            selectionIndicator: true,
+            vrButton:false
+        });
+        //开启地理编码
+        viewer.geocoder.viewModel.geoKey = 'fvV2osxwuZWlY0wJb8FEb2i5';
+        //去掉版权
+        viewer._cesiumWidget._creditContainer.style.display = "none";
+        //显示帧数
+        viewer.scene.debugShowFramesPerSecond = true;
+
+
+        //添加影像服务
+        viewer.imageryLayers.addImageryProvider(new Cesium.BingMapsImageryProvider({
+
+            url: 'https://dev.virtualearth.net',
+            mapStyle: Cesium.BingMapsStyle.AERIAL,
+            key: URL_CONFIG.BING_MAP_KEY
+        }));
+
+        viewer.customInfobox = infoboxContainer;
+        var scene = viewer.scene;
+        var canvas = scene.canvas;
+        var widget = viewer.cesiumWidget;
+
+        $(".form-group").show();
+        $(".element").show();
+        //  //全球影像服务
+        // viewer.imageryLayers.addImageryProvider(new Cesium.WebMapTileServiceImageryProvider({
+        //     url: "http://t0.tianditu.com/img_w/wmts?",
+        //     layer:"img",
+        //     style:"default",
+        //     format:"tiles",
+        //     tileMatrixSetID:"w",
+        //     credit: new Cesium.Credit('天地图全球影像服务'),
+        //     maximumLevel: 18,
+        //     show:false
+        // }));
+
+        // //全球影像中文注记服务
+        // viewer.imageryLayers.addImageryProvider(new Cesium.WebMapTileServiceImageryProvider({
+        //     url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg",
+        //     layer: "tdtAnnoLayer",
+        //     style: "default",
+        // 	format: "image/jpeg",
+        // 	tileMatrixSetID: "GoogleMapsCompatible",
+        // 	show: false
+        // }));
+
+
+        //viewer.customInfobox = infoboxContainer;
+
+        // 空间模式
+        var clampMode = 0;
+        //添加场景
+        var scene = viewer.scene;
+        var globe = viewer.scene.globe;
+        scene.globe.depthTestAgainstTerrain = false;
+        var camera = scene.camera;
+        var canvas = scene.canvas;
+        var widget = viewer.cesiumWidget;
+        //设置开启地下场景
+        viewer.scene.undergroundMode = true;
+        //设置相机最小缩放距离,距离地表-1000米
+        viewer.scene.screenSpaceCameraController.minimumZoomDistance = -1000;
+        viewer.scene.terrainProvider.isCreateSkirt = false; // 关闭裙边
+
+        var IDs=[];
+        var handlerDis,handlerArea,handlerHeight;
+        //移除加载动画
+        $('#loadingbar').remove();
+
+        //基础量算
+        //初始化测量距离
+        handlerDis = new Cesium.MeasureHandler(viewer,Cesium.MeasureMode.Distance,clampMode);
+        //注册测距功能事件
+        handlerDis.measureEvt.addEventListener(function(result){
+            var dis = Number(result.distance);
+            var distance = dis > 1000 ? (dis/1000).toFixed(2) + 'km' : dis.toFixed(2) + 'm';
+            handlerDis.disLabel.text = '距离:' + distance;
+
+        });
+        handlerDis.activeEvt.addEventListener(function(isActive){
+            if(isActive == true){
+                viewer.enableCursorStyle = false;
+                viewer._element.style.cursor = '';
+                $('body').removeClass('measureCur').addClass('measureCur');
+            }
+            else{
+                viewer.enableCursorStyle = true;
+                $('body').removeClass('measureCur');
+            }
+        });
+
+        //初始化测量面积
+        handlerArea = new Cesium.MeasureHandler(viewer,Cesium.MeasureMode.Area,clampMode);
+        handlerArea.measureEvt.addEventListener(function(result){
+            var mj = Number(result.area);
+            var area = mj > 1000000 ? (mj/1000000).toFixed(2) + 'km²' : mj.toFixed(2) + '㎡'
+            handlerArea.areaLabel.text = '面积:' + area;
+        });
+        handlerArea.activeEvt.addEventListener(function(isActive){
+            if(isActive == true){
+                viewer.enableCursorStyle = false;
+                viewer._element.style.cursor = '';
+                $('body').removeClass('measureCur').addClass('measureCur');
+            }
+            else{
+                viewer.enableCursorStyle = true;
+                $('body').removeClass('measureCur');
+            }
+        });
+
+        //初始化测量高度
+        handlerHeight = new Cesium.MeasureHandler(viewer,Cesium.MeasureMode.DVH);
+        handlerHeight.measureEvt.addEventListener(function(result){
+            var distance = result.distance > 1000 ? (result.distance/1000).toFixed(2) + 'km' : result.distance + 'm';
+            var vHeight = result.verticalHeight > 1000 ? (result.verticalHeight/1000).toFixed(2) + 'km' : result.verticalHeight + 'm';
+            var hDistance = result.horizontalDistance > 1000 ? (result.horizontalDistance/1000).toFixed(2) + 'km' : result.horizontalDistance + 'm';
+            handlerHeight.disLabel.text = '空间距离:' + distance;
+            handlerHeight.vLabel.text = '垂直高度:' + vHeight;
+            handlerHeight.hLabel.text = '水平距离:' + hDistance;
+        });
+        handlerHeight.activeEvt.addEventListener(function(isActive){
+            if(isActive == true){
+                viewer.enableCursorStyle = false;
+                viewer._element.style.cursor = '';
+                $('body').removeClass('measureCur').addClass('measureCur');
+            }
+            else{
+                viewer.enableCursorStyle = true;
+                $('body').removeClass('measureCur');
+            }
+        });
+
+        $('#distance').click(function(){
+            deactiveAll();
+            handlerDis && handlerDis.activate();
+        });
+        $('#area').click(function(){
+            deactiveAll();
+            handlerArea && handlerArea.activate();
+        });
+        $('#height').click(function(){
+            deactiveAll();
+            handlerHeight && handlerHeight.activate();
+        });
+        $('#clear').click(function(){
+            clearAll();
+        });
+
+        if(!scene.pickPositionSupported){
+            alert('不支持深度拾取,量算功能无法使用(无法进行鼠标交互绘制)！');
+        }
+
+        function clearAll(){
+            handlerDis  && handlerDis.clear();
+            handlerArea  && handlerArea.clear();
+            handlerHeight && handlerHeight.clear();
+        }
+
+        function deactiveAll(){
+            handlerDis  && handlerDis.deactivate();
+            handlerArea  && handlerArea.deactivate();
+            handlerHeight && handlerHeight.deactivate();
+        }
+
+        var camera = scene.camera;
+        var lastHouseEntity = null; // 最后一次显示的高亮面
+        try{
+            //打开所发布三维服务下的所有图层
+            var promise = scene.open('http://localhost:8091/iserver/services/3D-LISHUIpart/rest/realspace');
+            //打开场景
+            Cesium.when(promise,function(layers) {
+                if(!scene.pickPositionSupported){
+                    alert('不支持深度拾取,属性查询功能无法使用！');
+                }
+                //找的倾斜摄影图层进行属性查询
+                // var layer = scene.layers.find('西城校区');
+                // //设置属性查询参数
+                // layer.setQueryParameter({
+                //     url: 'http://localhost:8091/iserver/services/data-test/rest/data',
+                //     dataSourceName: 'xicheng',
+                //     dataSetName: '校区建筑',
+                //     keyWord: 'SmID'
+                // });
+
+                //找到可挖图层
+                //var overGroundLayer = scene.layers.find('西城校区');
+
+                //找到设置分屏的图层
+                var ground = scene.layers.find("西城校区");
+                var yushui = scene.layers.find("雨水@xicheng");
+                var wushui = scene.layers.find("污水@xicheng");
+
+                //设置相机位置、视角，便于观察场景
+                scene.camera.setView({
+                    //相机目标位置
+                    destination: new Cesium.Cartesian3.fromDegrees(119.89892169,28.47229685, 1323.445971240632),
+                    //相机方位角
+                    orientation: {
+                        heading: 3.1612,
+                        pitch: -1.5188,
+                        roll: 6.283185307179563
+                    }
+                });
+                // //默认home按钮返回位置修改
+                // var homeCameraView = {
+                //     destination :  new Cesium.Cartesian3.fromDegrees(119.89892169,28.47229685, 1323.445971240632),
+                // };
+                // viewer.scene.camera.setView(homeCameraView);
+                viewer.scene.mode = Cesium.SceneMode.SCENE3D;
+
+                //卷帘
+                var windowWidth = $('body').width(); // 窗口宽度
+                var windowHeight = $('body').height(); // 窗口高度
+                var rollerShutterConfig = { // 卷帘配置参数，以对象方式实现地址传递
+                    //splitDirection: Cesium.SplitDirection.BOTTOM,
+                    splitDirection: Cesium.SplitDirection.NONE,
+                    verticalSplitPosition: windowWidth / 2,
+                    horizontalSplitPosition: windowHeight / 2,
+                    splitLayers: [], // 参与卷帘的S3M图层名
+                    wholeLayers: [], // 所有S3M图层的名称
+                    latestSplitDirection: null // 用于在禁用卷帘后恢复之前的卷帘方向
+                };
+                for (var layer of layers) {
+                    // 添加图层列表 供选择参与卷帘的图层
+                    $("#layer-list").append(`<li style="margin: 0.5rem 0;"><label style="vertical-align: middle;"><input id=${layer.name} name="layer" type='checkbox' value=${layer.name} style="vertical-align: middle;" checked/>${layer.name}</label></li>`);
+
+                    rollerShutterConfig.splitLayers.push(layer.name); // 初始时所有S3M图层都参与卷帘
+                    rollerShutterConfig.wholeLayers.push(layer.name);
+                }
+                initRollerShutter(scene, rollerShutterConfig);
+
+
+                //分屏显示
+                $('#viewportType').change(function() {
+                    var value = $(this).val();
+                    switch(value) {
+                        case "NONE":
+                            $("#split_left").css("display", "none");
+                            $("#split_right").css("display", "none");
+                            $('#pannel').hide();
+                            break;
+                        case "HORIZONTAL":
+                            $("#split_left").css("display", "none");
+                            $("#split_right").css("display", "none");
+                            $('#pannel').show();
+                            $('#ws_one,#ws_two,#ys_one,#ys_two,#g_one,#g_two').show();
+                            break;
+                        default:
+                            $("#split_left").css("display", "block");
+                            $("#split_right").css("display", "block");
+                            $('#pannel').show();
+                            $('#ws_one,#ws_two,#ys_one,#ys_two,#g_one,#g_two').show();
+                            break;
+                    }
+                    scene.multiViewportMode = Cesium.MultiViewportMode[value];
+                });
+                $('#ground input[type=checkbox]').on("input propertychange", function(evt) {
+                    var value = Number($(this).attr('data-value'));
+                    ground.setVisibleInViewport(value, $(this).prop("checked"));
+                });
+                $('#yushui input[type=checkbox]').on("input propertychange", function(evt) {''
+                    var value = Number($(this).attr('data-value'));
+                    yushui.setVisibleInViewport(value, $(this).prop("checked"));
+                });
+                $('#wushui input[type=checkbox]').on("input propertychange", function(evt) {
+                    var value = Number($(this).attr('data-value'));
+                    wushui.setVisibleInViewport(value, $(this).prop("checked"));
+                });
+
+                //设置透明度
+                var viewModel = { //监听滑动条变化，改变alpha的值，设置地表透明度
+                    overGroundAlpha : 1
+                };
+                Cesium.knockout.track(viewModel);
+                var toolbar = document.getElementById('nav');
+                Cesium.knockout.applyBindings(viewModel, nav);
+                Cesium.knockout.getObservable(viewModel,'overGroundAlpha').subscribe(// 设置地表图层透明度
+                    function(newValue) {
+                        overGroundLayer.style3D.fillForeColor.alpha = parseFloat(newValue);
+                    }
+                );
+
+                //图层挖掘
+                $("#excavation").on("click",function(){//绘制开挖区域
+                    handlerPolygon = new Cesium.DrawHandler(viewer,Cesium.DrawMode.Polygon);
+                    handlerPolygon.activeEvt.addEventListener(function(isActive){
+                        if(isActive == true){
+                            viewer.enableCursorStyle = false;
+                            viewer._element.style.cursor = '';
+                            $('body').removeClass('drawCur').addClass('drawCur');
+                        }
+                        else{
+                            viewer.enableCursorStyle = true;
+                            $('body').removeClass('drawCur');
+                        }
+                    });
+                    handlerPolygon.movingEvt.addEventListener(function(windowPosition){
+                    });
+                    handlerPolygon.drawEvt.addEventListener(function(result){
+                        handlerPolygon.polygon.show = false;
+                        handlerPolygon.polyline.show = false;
+                        var polygon = result.object;
+                        var positions = polygon.positions;
+                        var flatPoints = [];
+                        for(var i = 0,j = positions.length;i < j;i++){//获取经纬度和高度
+                            var position = positions[i];
+                            var cartographic = Cesium.Cartographic.fromCartesian(position);
+                            var lon = Cesium.Math.toDegrees(cartographic.longitude);
+                            var lat = Cesium.Math.toDegrees(cartographic.latitude);
+                            var height = cartographic.height;
+                            flatPoints.push(lon);
+                            flatPoints.push(lat);
+                            flatPoints.push(height);
+                        }
+                        overGroundLayer.addExcavationRegion({//设置倾斜开挖参数
+                            position : flatPoints,
+                            name : 'excavation_' + Math.random()
+                        });
+                        handlerPolygon.deactivate();
+                    });
+                    handlerPolygon.activate();
+                    document.getElementById("qingchu").onclick = function() {
+                        viewer.scene.globe.removeAllExcavationRegion();
+                        handlerPolygon.polygon.show=false;
+                        handlerPolygon.polyline.show=false;
+                    };
+                });
+
+                $('#nav').show();
+                $('#loadingbar').remove();
+
+                //出图函数
+                $("#custom").on("click", function () {
+                    var promise = scene.outputSceneToFile();
+                    Cesium.when(promise, function (base64data) {
+                        download(base64data);
+                    })
+                })
+
+                // //点击淹没分析弹出窗口
+                // $("#waterFlood").click(function() {
+                //     $("#pannel2").css("display", "block");
+                //     $('#pannel2').show();
+                // })
+
+
+                //飞行
+                var routes = new Cesium.RouteCollection(viewer.entities);
+                //添加fpf飞行文件，fpf由SuperMap iDesktop生成
+                var fpfUrl = './SampleData/fpf/xicheng.fpf';
+                routes.fromFile(fpfUrl);
+                //初始化飞行管理
+                var flyManager = new Cesium.FlyManager({
+                    scene: scene,
+                    routes: routes
+                });
+                //注册站点到达事件
+                flyManager.stopArrived.addEventListener(function (routeStop) {
+                    routeStop.waitTime = 1; // 在每个站点处停留1s
+                });
+
+                flyManager.readyPromise.then(function () { // 飞行路线就绪
+                    var currentRoute = flyManager.currentRoute;
+                    currentRoute.isLineVisible = true;
+                    currentRoute.isStopVisible = true;
+                    //生成飞行文件中的所有站点列表
+                    var allStops = flyManager.getAllRouteStops();
+                    var menu = document.getElementById('stopList');
+                    for (var i = 0, j = allStops.length; i < j; i++) {
+                        var option = document.createElement('option');
+                        option.innerHTML = "站点 " + (i + 1);
+                        option.value = allStops[i].index;
+                        menu.appendChild(option);
+                    }
+
+                    $('#stopList').change(function () { //注册站点切换事件
+                        flyManager && flyManager.stop();
+                        var index = parseInt($(this).val()); // 站点的索引
+                        var route = flyManager.currentRoute;
+                        var stop = route.get(index);
+                        flyManager.currentStopIndex = index;
+                        flyManager.viewToStop(stop);
+                    });
+                    $('#play').click(function () {
+                        flyManager && flyManager.play();
+                    });
+                    $('#pause').click(function () {
+                        flyManager && flyManager.pause();
+                    });
+                    $('#stop').click(function () {
+                        flyManager && flyManager.stop();
+                    });
+                    $('#show-line').change(function(){
+                        currentRoute.isLineVisible = $(this).prop('checked');
+                    });
+                    $('#show-stop').change(function(){
+                        currentRoute.isStopVisible = $(this).prop('checked');
+                    });
+                    $('#nav').show();
+                    $('#loadingbar').remove();
+                });
+            },function(e){
+                if (widget._showRenderLoopErrors) {
+                    var title = '加载SCP失败，请检查网络连接状态或者url地址是否正确？';
+                    widget.showErrorPanel(title, undefined, e);
+                }
+            });
+        }
+        catch(e){
+            if (widget._showRenderLoopErrors) {
+                var title = '渲染时发生错误，已停止渲染。';
+                widget.showErrorPanel(title, undefined, e);
+            }
+        }
+
+        /**
+         * 淹没分析
+         */
+
+
+        /**
+         * 属性查询事件
+         */
+        //添加自定义infobox
+        var title = document.getElementById("title");
+        var des = document.getElementById("des");
+        var myimg = document.getElementById("myimg");
+        //注册鼠标点击事件
+        viewer.pickEvent.addEventListener(function(feature){
+            var title = Cesium.defaultVa
+            lue(feature.NAME,'');
+            var description = Cesium.defaultValue(feature.DES,'');
+            title.innerText = title;
+            des.innerText = description;
+            //myimg.src = "./images/" + title + ".jpg";
+        });
+    }
+
+    /**
+     * 初始化卷帘。设置分割条初始位置及绑定相关事件。
+     * @param scene 场景。
+     * @param rollerShutterConfig 卷帘配置参数。
+     */
+    function initRollerShutter(scene, rollerShutterConfig) {
+        setRollerShutterSplit(scene, rollerShutterConfig);
+        bindSliderEvt(scene, rollerShutterConfig);
+        $('input[type=radio][name="roller-mode"]').on('input propertychange', function () {
+            let splitDirectionCustomStr = $('input[type=radio][name="roller-mode"]:checked').val();
+            switch (splitDirectionCustomStr) {
+                case 'left-roller':
+                    rollerShutterConfig.splitDirection = Cesium.SplitDirection.LEFT;
+                    break;
+                case 'right-roller':
+                    rollerShutterConfig.splitDirection = Cesium.SplitDirection.RIGHT;
+                    break;
+                case 'top-roller':
+                    rollerShutterConfig.splitDirection = Cesium.SplitDirection.TOP;
+                    break;
+                case 'bottom-roller':
+                    rollerShutterConfig.splitDirection = Cesium.SplitDirection.BOTTOM;
+                    break;
+                default:
+                    break;
+            }
+            setRollerShutterSplit(scene, rollerShutterConfig);
+        });
+
+        // 在 “左右模式” 和 “上下模式” 之间切换
+        $('input[type=radio][name="roller-category"]').on("input propertychange", function () {
+            let splitDirectionCategory = $('input[type=radio][name="roller-category"]:checked').val();
+            let verticalSlider = document.getElementById('vertical-slider');
+            let horizontalSlider = document.getElementById('horizontal-slider');
+            switch (splitDirectionCategory) {
+                case 'lr-roller':
+                    verticalSlider.style.display = 'block';
+                    horizontalSlider.style.display = 'none';
+                    $("#lr-roller-mode").css("display", "block");
+                    $("#tb-roller-mode").css("display", "none");
+                    rollerShutterConfig.splitDirection = Cesium.SplitDirection.LEFT;
+                    $("input[type=radio][value='left-roller']").prop("checked", "checked");
+                    break;
+                case 'tb-roller':
+                    verticalSlider.style.display = 'none';
+                    horizontalSlider.style.display = 'block';
+                    $("#lr-roller-mode").css("display", "none");
+                    $("#tb-roller-mode").css("display", "block");
+                    rollerShutterConfig.splitDirection = Cesium.SplitDirection.TOP;
+                    $("input[type=radio][value='top-roller']").prop("checked", "checked");
+                    break;
+                default:
+                    break;
+            }
+            setRollerShutterSplit(scene, rollerShutterConfig);
+        });
+
+        // 控制图层是否参与卷帘
+        $('input[type=checkbox][name="layer"]').on("input propertychange", function () {
+             var operationLayerName = $(this).val();
+            if ($(this).prop("checked")) { // 图层参与卷帘
+                rollerShutterConfig.splitLayers.push(operationLayerName);
+            } else {
+                var index = rollerShutterConfig.splitLayers.indexOf(operationLayerName);
+                rollerShutterConfig.splitLayers.splice(index, 1);
+            }
+            setRollerShutterSplit(scene, rollerShutterConfig);
+        });
+
+        // 是否使用卷帘
+        $("#use-roller").on("input propertychange", function () {
+            var verticalSlider = document.getElementById('vertical-slider');
+            var horizontalSlider = document.getElementById('horizontal-slider');
+            if ($(this).prop("checked")) {
+                if (rollerShutterConfig.latestSplitDirection === Cesium.SplitDirection.LEFT ||
+                    rollerShutterConfig.latestSplitDirection === Cesium.SplitDirection.RIGHT) {
+                    verticalSlider.style.display = 'block';
+                    horizontalSlider.style.display = 'none';
+                } else {
+                    verticalSlider.style.display = 'none';
+                    horizontalSlider.style.display = 'block';
+                }
+                rollerShutterConfig.splitDirection = rollerShutterConfig.latestSplitDirection;
+            } else {
+                rollerShutterConfig.latestSplitDirection = rollerShutterConfig.splitDirection;
+                rollerShutterConfig.splitDirection = Cesium.SplitDirection.NONE;
+                verticalSlider.style.display = 'none';
+                horizontalSlider.style.display = 'none';
+            }
+            setRollerShutterSplit(scene, rollerShutterConfig);
+        });
+    }
+
+    /**
+     * 注册卷帘分割条的拖拽事件。
+     * @param scene 场景。
+     * @param rollerShutterConfig 卷帘配置参数。
+     */
+    function bindSliderEvt(scene, rollerShutterConfig) {
+        let verticalSlider = document.getElementById('vertical-slider'); // 垂直分割条
+        let horizontalSlider = document.getElementById('horizontal-slider'); // 水平分割条
+        verticalSlider.addEventListener('mousedown', mouseDown, false);
+        horizontalSlider.addEventListener('mousedown', mouseDown, false);
+        let windowWidth = $('body').width();
+        let windowHeight = $('body').height();
+        document.addEventListener('mouseup', mouseUp, false);
+        function mouseUp(e) {
+            document.removeEventListener('mousemove', sliderMove, false);
+        }
+        function mouseDown(e) {
+            document.addEventListener('mousemove', sliderMove, false);
+        }
+        function sliderMove(e) { // 鼠标拖拽时执行
+            // 解决拖拽鼠标粘滞的问题
+            if (e.preventDefault) {
+                e.preventDefault();
+            } else {
+                e.returnValue = false;
+            }
+            if (rollerShutterConfig.splitDirection === Cesium.SplitDirection.LEFT || rollerShutterConfig.splitDirection === Cesium.SplitDirection.RIGHT) {
+                verticalSlider.style.left = e.clientX + 'px';
+                rollerShutterConfig.verticalSplitPosition = e.clientX;
+            } else if (rollerShutterConfig.splitDirection === Cesium.SplitDirection.TOP || rollerShutterConfig.splitDirection === Cesium.SplitDirection.BOTTOM) {
+                let clientY = e.clientY;
+                if (clientY < 0) {
+                    clientY = 0;
+                } else if (clientY > windowHeight) {
+                    clientY = windowHeight - $('#horizontal-slider').height();
+                }
+                horizontalSlider.style.top = clientY + 'px';
+                rollerShutterConfig.horizontalSplitPosition = windowHeight - clientY;
+            }
+            setRollerShutterSplit(scene, rollerShutterConfig);
+        }
+    }
+
+    /**
+     * 设置卷帘的分割方向及分割条的位置。
+     * @param scene 场景。
+     * @param rollerShutterConfig 卷帘配置参数。
+     */
+    function setRollerShutterSplit(scene, rollerShutterConfig) {
+        let splitPosition = null;
+        if (rollerShutterConfig.splitDirection === Cesium.SplitDirection.LEFT || rollerShutterConfig.splitDirection === Cesium.SplitDirection.RIGHT) {
+            splitPosition = rollerShutterConfig.verticalSplitPosition;
+        } else if (rollerShutterConfig.splitDirection === Cesium.SplitDirection.TOP || rollerShutterConfig.splitDirection === Cesium.SplitDirection.BOTTOM) {
+            splitPosition = rollerShutterConfig.horizontalSplitPosition;
+        }
+        for (let layer of scene.layers.layerQueue) {
+            // 判断图层是否是参与卷帘的图层
+            if (rollerShutterConfig.splitLayers.indexOf(layer.name) != -1) {
+                layer.splitDirection = rollerShutterConfig.splitDirection;
+                if (splitPosition) { // 如果禁用卷帘就没有必要设置分割位置
+                    layer.splitPosition = splitPosition;
+                }
+            } else {
+                layer.splitDirection = Cesium.SplitDirection.NONE;
+            }
+        }
+    }
+
+
+    /**
+     * 根据图片生成画布
+     */
+    function convertImageToCanvas(image) {
+        var canvas = document.createElement("canvas");
+        canvas.width = image.width;
+        canvas.height = image.height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        return canvas;
+    }
+    /**
+     * 下载图片
+     */
+    function download(base64data) {
+        var image = new Image();
+        image.src = base64data;
+        image.onload = function() {
+            var canvas = convertImageToCanvas(image);
+            url = canvas.toDataURL("image/jpeg");
+            var a = document.createElement('a');
+            var event = new MouseEvent('click');
+            a.download = (new Date()).getTime() + ".jpg"; // 指定下载图片的名称
+            a.href = url;
+            a.dispatchEvent(event); // 触发超链接的点击事件
+        }
+    }
+
+</script>
+</body>
+</html>
